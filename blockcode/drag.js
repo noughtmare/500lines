@@ -3,7 +3,6 @@
 
     var dragTarget = null; // Block we're dragging
     var dragType = null; // Are we dragging from the menu or from the script?
-    var scriptBlocks = []; // Blocks in the script, sorted by position
     var nextBlock = null; // Block we'll be inserting before
 
     function dragStart(evt){
@@ -15,7 +14,6 @@
         }
         evt.target.classList.add('dragging');
         dragTarget = evt.target;
-        scriptBlocks = [].slice.call(document.querySelectorAll('.script .block:not(.dragging)'));
         // For dragging to take place in Firefox, we have to set this, even if we don't use it
         evt.dataTransfer.setData('text/html', evt.target.outerHTML);
         if (matches(evt.target, '.menu .block')){
@@ -25,7 +23,7 @@
         }
     }
 
-    function findPosition(evt){
+    function findPosition(evt, scriptBlocks){
         var prevBlock = nextBlock;
         nextBlock = null;
         var x = evt.clientX;
@@ -72,7 +70,8 @@
     function drop(evt){
         if (!matches(evt.target, '.menu, .menu *, .script, .script *')) return;
         var dropTarget = closest(evt.target, '.script .container, .menu, .script');
-        findPosition(evt);
+        let scriptBlocks = [].slice.call(dropTarget.querySelectorAll('.block:not(.dragging)'));
+        findPosition(evt, scriptBlocks);
         var dropType = 'script';
         if (matches(dropTarget, '.menu')){ dropType = 'menu'; }
         if (evt.stopPropagation) { evt.stopPropagation(); } // stops the browser from redirecting.
